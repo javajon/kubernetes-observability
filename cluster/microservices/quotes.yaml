@@ -1,0 +1,42 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: quotes
+  namespace: quotes
+  labels:
+    app: quotes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quotes
+  template:
+    metadata:
+      name: quotes
+      labels:
+        app: quotes
+    spec:
+      containers:
+      - name: biographies
+        image: localhost:5000/quotes
+        ports:
+        - name: web
+          containerPort: 9001
+          protocol: TCP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: quotes
+  labels:
+    app: quotes
+  namespace: quotes
+spec:
+  type: NodePort
+  ports:
+  - name: rest
+    port: 9001
+    targetPort: 9001
+    protocol: TCP
+  selector:
+    app: quotes

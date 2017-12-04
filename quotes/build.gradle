@@ -1,0 +1,42 @@
+/*
+ * This build file generates and publishes the microservice
+ * for the obtaining biographies of authors. The microservice leverages
+ * Java 8 compilation, Java 9 Docker container and SpringBoot.
+ *
+ * Execute task "pushImage" to publish complete microservice
+ */
+buildscript {
+    apply from: 'gradle/buildscript.gradle', to: buildscript
+}
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '1.5.6.RELEASE'
+    id "io.spring.dependency-management" version '1.0.3.RELEASE'
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+group = projectGroup
+version = versionTag
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+task wrapper(type: Wrapper) {
+    gradleVersion = wrapperVersion
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion"
+
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+}
+
+apply from: 'gradle/docker.gradle'
+apply from: 'gradle/monitoring.gradle'

@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: registry-ui
+  namespace: kube-system
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: registry-ui
+    spec:
+      containers:
+      - name: registry-ui
+        image: hyper/docker-registry-web
+        ports:
+        - containerPort: 8080
+        env:
+        - name: REGISTRY_URL
+          value: http://registry.kube-system.svc.cluster.local/v2
+        - name: REGISTRY_NAME
+          value: minikube-registry
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: registry-ui
+  labels:
+    app: registry-ui
+  namespace: kube-system
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: registry-ui

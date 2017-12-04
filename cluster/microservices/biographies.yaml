@@ -1,0 +1,42 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: biographies
+  namespace: quotes
+  labels:
+    app: biographies
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: biographies
+  template:
+    metadata:
+      name: biographies
+      labels:
+        app: biographies
+    spec:
+      containers:
+      - name: biographies
+        image: localhost:5000/biographies
+        ports:
+        - name: web
+          containerPort: 9001
+          protocol: TCP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: biographies
+  labels:
+    app: biographies
+  namespace: quotes
+spec:
+  type: NodePort
+  ports:
+  - name: rest
+    port: 9001
+    targetPort: 9001
+    protocol: TCP
+  selector:
+    app: biographies

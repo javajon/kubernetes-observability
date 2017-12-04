@@ -1,0 +1,24 @@
+# Ensure only the absolutly necessary files are in source control.
+
+# Ignore Gradle output
+.gradle/*
+build/
+
+# Ignore intellij
+.idea/*
+*.iml
+*.ipr
+*.iws
+
+# Eclipse project files
+.classpath
+.project
+
+# Ignore extra folders in Jenkins workspace
+caches/
+native/
+wrapper/
+daemon/
+
+#Ignore MAC system files
+.DS_Store
