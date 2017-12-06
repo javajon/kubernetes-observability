@@ -34,31 +34,6 @@ public class BiographiesService
     }
 
     /**
-     * Load the bios from a resource
-     */
-    private void populateData() throws IOException
-    {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        InputStream sourceStream = getClass().getClassLoader().getResourceAsStream("biographies.yaml");
-
-        Map<String, Object> rawParsedValues =
-                mapper.readValue(sourceStream, new TypeReference<Map<String, Object>>()
-                {
-                });
-        for (String key : rawParsedValues.keySet())
-        {
-            LinkedHashMap value = (LinkedHashMap) rawParsedValues.get(key);
-
-            Biography biography = new Biography();
-            biography.setBirth(value.get("birth").toString());
-            biography.setOccupation(value.get("occupation").toString());
-            biography.setNationality(value.get("nationality").toString());
-
-            biographies.put(key, biography);
-        }
-    }
-
-    /**
      * Get the author's bio.
      *
      * @param firstName Author's name
@@ -99,5 +74,30 @@ public class BiographiesService
         LOG.info("Biography found: {}", biography);
 
         return biography;
+    }
+
+    /**
+     * Load the bios from a resource
+     */
+    private void populateData() throws IOException
+    {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        InputStream sourceStream = getClass().getClassLoader().getResourceAsStream("biographies.yaml");
+
+        Map<String, Object> rawParsedValues =
+                mapper.readValue(sourceStream, new TypeReference<Map<String, Object>>()
+                {
+                });
+        for (String key : rawParsedValues.keySet())
+        {
+            LinkedHashMap value = (LinkedHashMap) rawParsedValues.get(key);
+
+            Biography biography = new Biography();
+            biography.setBirth(value.get("birth").toString());
+            biography.setOccupation(value.get("occupation").toString());
+            biography.setNationality(value.get("nationality").toString());
+
+            biographies.put(key, biography);
+        }
     }
 }

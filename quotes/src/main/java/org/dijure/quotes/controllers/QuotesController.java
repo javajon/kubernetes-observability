@@ -4,10 +4,7 @@ import org.dijure.quotes.service.QuotesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -28,25 +25,54 @@ public class QuotesController
     @ResponseBody
     public List<String> getFullQuote()
     {
-        String authorName = lookupAuthorNameRandom();
-        LOG.info("Full quote: Author name {}", authorName);
-
-        String authorBio = lookupAuthorBio(authorName);
-        LOG.info("Full quote: Author bio {}", authorBio);
-
-        List<String> quotes = quotesService.getQuotes(authorName);
-
+        LOG.info("Request quote full quote from all services.");
         List<String> fullQuote = new ArrayList<>(3);
+
+        String authorName = lookupAuthorNameRandom();
         fullQuote.add(authorName);
-        fullQuote.add(authorBio);
-        if (!quotes.isEmpty())
-        {
-            String quote = quotes.get(new Random().nextInt(quotes.size()));
-            fullQuote.add(quote);
-            LOG.info("Full quote: Author quote {}", quote);
-        }
+        String authorBio = lookupAuthorBio(authorName);
+        fullQuote.add(getString(fullQuote, authorName, authorBio));
 
         return fullQuote;
+    }
+
+
+    @RequestMapping("/quote/author/{firstName}/{lastName}")
+    @ResponseBody
+    public List<String> getAuthorQuote(@PathVariable String firstName, @PathVariable String lastName)
+    {
+        LOG.info("Request quote from author {} {}", firstName, lastName);
+        return quotesService.getQuotes(firstName, lastName);
+    }
+
+    @RequestMapping("/quote/random")
+    @ResponseBody
+    public List<String> getQuoteRandomAuthor()
+    {
+        LOG.info("Request random quote");
+        return quotesService.getRandomQuote();
+    }
+
+    @RequestMapping("/quote/list")
+    @ResponseBody
+    public Map<String, List<String>> getAllAuthorQuotes()
+    {
+        LOG.info("Request full list");
+        return quotesService.getQuotes();
+    }
+
+    @RequestMapping("/forceError")
+    @ResponseBody
+    public String forceError()
+    {
+        LOG.info("Error being forced");
+        throw new RuntimeException("An error has been forced for demonstration.");
+    }
+
+    @ExceptionHandler(Exception.class)
+    public String exception(Exception e)
+    {
+        return "An API exception has been encountered: " + e.getMessage();
     }
 
     private String lookupAuthorNameRandom()
@@ -67,7 +93,7 @@ public class QuotesController
      * <p>
      * ["{\"first\":\"Steven\",\"last\":\"Wright\"}","todo"]
      * <p>
-     * TODO: its brute force now, use json parser later
+     * TODO: it's brute force now, consider json parser later
      */
     private String parseFullName(String rawNameData)
     {
@@ -98,28 +124,16 @@ public class QuotesController
         }
     }
 
-
-    @RequestMapping("/quote/author/{firstName}/{lastName}")
-    @ResponseBody
-    public List<String> getAuthorQuote(@PathVariable String firstName, @PathVariable String lastName)
+    private String getString(List<String> fullQuote, String authorName, String authorBio)
     {
-        List<String> quotes = quotesService.getQuotes(firstName, lastName);
-        return quotes;
-    }
-
-    @RequestMapping("/quote/random")
-    @ResponseBody
-    public List<String> getQuoteRandomAuthor()
-    {
-        List<String> randomQuotes = quotesService.getRandomQuote();
-
-        return randomQuotes;
-    }
-
-    @RequestMapping("/quote/list")
-    @ResponseBody
-    public Map<String, List<String>> getAllAuthorQuotes()
-    {
-        return quotesService.getQuotes();
+        String quote = "";
+        List<String> quotes = quotesService.getQuotes(authorName);
+        fullQuote.add(authorBio);
+        if (!quotes.isEmpty())
+        {
+            quote = quotes.get(new Random().nextInt(quotes.size()));
+            LOG.info("Full quote: Author quote {}", quote);
+        }
+        return quote;
     }
 }

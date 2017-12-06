@@ -23,4 +23,13 @@ public class Author
     {
         return last;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Author{" +
+                "first='" + first + '\'' +
+                ", last='" + last + '\'' +
+                '}';
+    }
 }

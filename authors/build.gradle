@@ -34,6 +34,9 @@ repositories {
 
 dependencies {
     compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.cloud:spring-cloud-starter-sleuth'
+    compile 'org.springframework.cloud:spring-cloud-sleuth-zipkin'
+
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion"
 
     testCompile 'org.springframework.boot:spring-boot-starter-test'

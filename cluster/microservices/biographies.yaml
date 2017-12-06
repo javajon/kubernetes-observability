@@ -34,9 +34,29 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - name: rest
+  - name: rest-biographies
     port: 9001
     targetPort: 9001
     protocol: TCP
   selector:
     app: biographies
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: biographies-metrics
+  namespace: monitoring
+  labels:
+    k8s-app: biographies-app
+    microservice: biographies
+spec:
+  endpoints:
+  - interval: 10s
+    port: rest-biographies
+  namespaceSelector:
+    matchNames:
+    - quotes
+  selector:
+    matchLabels:
+      app: biographies
+     

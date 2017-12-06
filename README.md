@@ -4,17 +4,18 @@ Kubernetes is a complex container management system. Your application running in
 as it embraces the distributed architecture of highly modular and cohesive services. As these containers run things may
 not always run as smoothly as you hope. Embracing the notions of antifragility and designing a system to be resilient
 despite the realities of resource limitations, network failures, hardware failures and failed software logic. All of this
-demands a mature and robust monitoring system to give everyone a view into the behaviors and health of the applications
+demands a mature and robust monitoring system to give views into the behaviors and health of your applications
 running in a cluster.
 
-Two important types of monitoring are data events and log streams. Over time there are services that gather and export the 
-states and log statements. There are time series databases that append each temporal piece of data. There are monitors that
-evaluate alerting rules against key changes in data. Lastly, there are dashboards and reports that gather either historical
-data or act as real time current status viewports into the state and health of your cluster and application.
+Three important types of monitoring are metric data events, log streams and tracing. Over time there are services that 
+gather, store and export the metrics and logs. There are time series databases that append each temporal piece of data. 
+There are monitors that evaluate alerting rules against key changes in data. Lastly, there are dashboards and reports 
+offering views into states based on the metrics and logs gathered during a time range. Ultimately, to provide you 
+viewports into the state and health of your cluster and its hosted applications.
 
-For data events in Kubernetes it's common to use:
-- Prometheus to gather runtime data events 
-- Alert Manager to post alerts based on changing data
+For metrics and data events in Kubernetes it's common to use:
+- Prometheus to gather runtime data events and fire alerts
+- Alertmanager to gather and route alerts based on changing data
 - Grafana to visually aggregate and decipher the Prometheus data
 
 For logging in Kubernetes it's common to use:
@@ -22,29 +23,31 @@ For logging in Kubernetes it's common to use:
 - ElasticSearch to store the collated stream data into a searchable time series database
 - Kabana to visually interact with frequent searches against the ElasticSearch data
 
+For tracing in Kubernetes it's possible to use:
+- ZOP stack (ZipKin, OpenTracing, Prometheus) 
+- JOP stack (Jaeger, OpenTracing, Prometheus) (http://www.hawkular.org/blog/2017/06/26/opentracing-appmetrics.html)
+
+
+### What will these following instructions do? ###
+
+- Start a personal Kubernetes cluster
+- Add a private Docker registry with a UI to Kubernetes 
+- Add Prometheus, Alertmanager and Grafana to Kubernetes
+- Compile and push 3 microservices to the private registry
+- Start the 3 microservices on Kubernetes
+- Monitor the microservices metrics through Prometheus
+- Roadmap: Logging demonstration
+- Roadmap: Tracing demonstration
+
 
 ### How do I get set up? ###
 
-* Clone this project from GitHub
-* Install [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) (or any other Kubernetes solution)
+- Clone this project from GitHub
+- Install [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) (or any other Kubernetes solution)
   <br>Try not to start Minikube, just install the CLI tool and VirtualBox. Below the start script will start it.
-* Install Kubectl and verify `kubectl version` runs correctly
-* From project root run `./start.sh`. This will provision a personal Kubernetes cluster for you.
+- Install Kubectl and verify `kubectl version` runs correctly
+- From project root run `./start.sh`. This will provision a personal Kubernetes cluster for you.
 
-### Deploy some microservices that will be monitored ###
-
-There are three SpringBoot microservices that communicate with each other: Quotes, Authors and Biographies. 
-The above start.sh script enables the Minikube addon called "registry". This is a private Docker registry running
-as a container in your cluster. Build and deploy the 3 microservices and their Docker images will be pushed to
-this registry. The shell script 
-
-`./pushImages.sh` 
-
-will run the gradle task `pushImages` for each of the three microservices.
-
-Once the images are pushed you can verify they are now in the registry with the command:
-
-`curl -X GET $(minikube service -n kube-system registry --url)/v2/_catalog`
 
 ### Enhanced UI for the private Docker Registry ###
 
@@ -52,34 +55,14 @@ From the project root run
 
 `kubectl create -f cluster/registry-ui`
 
-In a few minutes a service will 
-give you access to a browser based UI. Here you can verify the three microservices images have been 
-deployed to the cluster's private Docker registry. To see the UI run 
+In a few minutes a service will give you access to a browser based UI. Here you can verify the three microservices 
+images have been deployed to the cluster's private Docker registry. To see the UI run
 
 `minikube service -n kube-system registry-ui`
 
-### Start the microservices ###
-Only the microservices images have been deployed to the private registry, the services now need to be started.
-
-Create a namespace where the microservice containers will run.
-
-`kubectl create namespace quotes`
-
-Now, deploy the microservice containers
-
-`kubectl create -f cluster/microservices`
-
-
-### What do these microservices do? ###
-This project contains three microservices based on Java SpringBoot. They provide JSON based REST APIs and 
-coordinate to return random famous quotes from some select authors. Invoking a get /quotes/full on the 
-Quotes service will return a random author's small biography and a random quote from their notable curation.
-
-`curl $(minikube service -n quotes quotes --url)/quote/full`
-
-Each REST request will produce a random quote from a random author.
 
 ### Installing Prometheus ###
+
 The Github project [coreos/prometheus-operator](https://github.com/coreos/prometheus-operator) provides a well
 configured Grafana dashboards and Prometheus settings for many Kubernetes clusters. It also has documented installation
 procedures that can provision you cluster, even a small one on Minikube with an effective monitoring solution.
@@ -108,6 +91,55 @@ Install Prometheus
 
 `hack/cluster-monitoring/minikube-deploy`
 
+
+### Deploy some microservices that will be monitored ###
+
+There are three SpringBoot microservices that communicate with each other: Quotes, Authors and Biographies. 
+The above start.sh script enables the Minikube addon called "registry". This is a private Docker registry running
+as a container in your cluster. Build and deploy the 3 microservices and their Docker images will be pushed to
+this registry. In the project root there is a script 
+
+`./pushImages.sh` 
+
+the will run the gradle task `pushImages` on each microservice project. Once the images are pushed you can verify 
+they are now in the registry with the command:
+
+`curl -X GET $(minikube service -n kube-system registry --url)/v2/_catalog`
+
+This curl request will return: {"repositories":["authors","biographies","quotes"]}
+
+
+### Start the microservices ###
+
+Only the microservices images have been deployed to the private registry, the services now need to be started.
+
+Create a namespace where the microservice containers will run.
+
+`kubectl create namespace quotes`
+
+Now, into that namespace, deploy the microservice containers
+
+`kubectl apply -f cluster/microservices`
+
+
+### What do these microservices do? ###
+
+This project contains three microservices based on Java SpringBoot. They provide JSON based REST APIs and 
+coordinate to return random famous quotes, biographies and authors from the respective services. 
+
+`curl $(minikube service -n quotes authors     --url)/author/random`
+`curl $(minikube service -n quotes biographies --url)/bio/random`
+`curl $(minikube service -n quotes quotes      --url)/quote/random`
+
+Invoking a get /quotes/full on the Quotes service will return a random author's small biography and a random 
+quote from their notable curation.
+
+`curl $(minikube service -n quotes quotes --url)/quote/full`
+
+This is a invokes the 3 microservices in a chained transaction. Each REST request will produce a random quote 
+from a random author.
+
+
 ### Intracting with Prometheus ###
 
 It will take a few minutes for the containers to download and start. You can
@@ -123,7 +155,11 @@ Once running you can access the three UI dashboard with these commands:
 
 `minikube service -n monitoring grafana`
 
+`for i in {1..10}; do curl $(minikube service -n quotes quotes --url)/quote/full; done`
 
+
+### Observe the tracing ###
+kubectl run stackdriver-zipkin --image=gcr.io/stackdriver-trace-docker/zipkin-collector:v0.3.0 --expose --port=9411 --namespace monitoring
 
 
 ### Technology stack ###
@@ -137,6 +173,7 @@ Once running you can access the three UI dashboard with these commands:
 * Grafana
 * (roadmap: fluentd, ElasticSearch, Kabana)
 * (roadmap: ZipKin)
+
 
 ### Additional information ###
 

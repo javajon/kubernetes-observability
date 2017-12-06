@@ -48,6 +48,7 @@ public class HttpMetricsFilter implements Filter, MetricStatics
 
         // add the current time in ms to the request.
         httpRequest.setAttribute(REQ_PARAMS_TIMING, System.currentTimeMillis());
+
         chain.doFilter(request, response);
 
         // compute the duration of the request.
@@ -58,14 +59,15 @@ public class HttpMetricsFilter implements Filter, MetricStatics
 
         // save the metrics
         REQUEST_SIZE.labels(labels).observe(request.getContentLengthLong());
-
-        if (httpResponse.getStatus() != HttpStatus.OK.value())
-        {
-            ERROR_COUNTER.labels(labels).inc();
-        }
-
         RESPONSE_DURATION.labels(labels).observe(duration);
         REQUEST_COUNTER.labels(labels).inc();
+
+        // capture exceptional situations, in conjunction with controller annotation @ExceptionHandler
+        if (httpResponse.getStatus() != HttpStatus.OK.value())
+        {
+            // determine values of the method and status labels.
+            ERROR_COUNTER.labels(labels).inc();
+        }
     }
 
     @Override

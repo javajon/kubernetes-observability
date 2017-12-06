@@ -34,9 +34,28 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - name: rest
+  - name: rest-quotes
     port: 9001
     targetPort: 9001
     protocol: TCP
   selector:
     app: quotes
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: quotes-metrics
+  namespace: monitoring
+  labels:
+    k8s-app: quotes-app
+    microservice: quotes
+spec:
+  endpoints:
+  - interval: 10s
+    port: rest-quotes
+  namespaceSelector:
+    matchNames:
+    - quotes
+  selector:
+    matchLabels:
+      app: quotes

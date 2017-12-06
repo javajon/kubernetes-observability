@@ -34,9 +34,28 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - name: rest
+  - name: rest-authors
     port: 9001
     targetPort: 9001
     protocol: TCP
   selector:
     app: authors
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: authors-metrics
+  namespace: monitoring
+  labels:
+    k8s-app: authors-app
+    microservice: authors    
+spec:
+  endpoints:
+  - interval: 10s
+    port: rest-authors
+  namespaceSelector:
+    matchNames:
+    - quotes
+  selector:
+    matchLabels:
+      app: authors

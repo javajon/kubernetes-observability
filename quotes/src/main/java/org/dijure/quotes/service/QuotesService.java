@@ -33,30 +33,6 @@ public class QuotesService
     }
 
     /**
-     * Load all author quotes from a resource
-     */
-    private void populateData() throws IOException
-    {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        InputStream sourceStream = getClass().getClassLoader().getResourceAsStream("quotes.yaml");
-
-        Map<String, Object> rawParsedValues =
-                mapper.readValue(sourceStream, new TypeReference<Map<String, Object>>()
-                {
-                });
-        for (String key : rawParsedValues.keySet())
-        {
-            List<?> quoteTexts = (List) rawParsedValues.get(key);
-            List<String> authorQuotes = new ArrayList<>(quoteTexts.size());
-            for (Object rawQuote : quoteTexts)
-            {
-                authorQuotes.add(rawQuote.toString());
-            }
-            quotes.put(key, authorQuotes);
-        }
-    }
-
-    /**
      * Get the author's quotes.
      *
      * @param firstName Author's name
@@ -94,7 +70,7 @@ public class QuotesService
     }
 
     /**
-     * Obtain a randomly selected quote.
+     * Obtain a quote set from a random author
      *
      * @return
      */
@@ -106,5 +82,29 @@ public class QuotesService
         LOG.info("Quotes found: {}", quotes);
 
         return quotes;
+    }
+
+    /**
+     * Load all author quotes from a resource
+     */
+    private void populateData() throws IOException
+    {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        InputStream sourceStream = getClass().getClassLoader().getResourceAsStream("quotes.yaml");
+
+        Map<String, Object> rawParsedValues =
+                mapper.readValue(sourceStream, new TypeReference<Map<String, Object>>()
+                {
+                });
+        for (String key : rawParsedValues.keySet())
+        {
+            List<?> quoteTexts = (List) rawParsedValues.get(key);
+            List<String> authorQuotes = new ArrayList<>(quoteTexts.size());
+            for (Object rawQuote : quoteTexts)
+            {
+                authorQuotes.add(rawQuote.toString());
+            }
+            quotes.put(key, authorQuotes);
+        }
     }
 }

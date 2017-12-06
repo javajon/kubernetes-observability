@@ -1,11 +1,10 @@
 package org.dijure.authors.service;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Component
