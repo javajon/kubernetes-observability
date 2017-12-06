@@ -9,13 +9,6 @@
         </property>
     </bean>
 
-    <!-- Add the correlation id filter -->
-    <bean id="correlationIdRegistration" class="org.springframework.boot.web.servlet.FilterRegistrationBean">
-        <property name="filter">
-            <bean id="metricsFilter" class="org.dijure.biographies.service.CidFilter"/>
-        </property>
-    </bean>
-
     <!-- Add servlet for the metrics endpoint -->
     <bean id="metricsServlet" class="org.springframework.boot.web.servlet.ServletRegistrationBean">
         <constructor-arg name="servlet">
