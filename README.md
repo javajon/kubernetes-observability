@@ -225,8 +225,11 @@ Error metrics can be observed with
 `
 curl $(minikube service -n quotes quotes --url)/forceError
 `
+The JVM metrics appear because of the line:  `DefaultExports.initialize();`
 
-
+Prometheus scrapes all these metrics with the relative "/metrics" call. If the service has an exposed  
+URL for metrics then it appears in the Prometheus "Targets" listing. The URL definition is defined 
+in the spring-beans-config.xml SpringBoot file for each microservice project.
 
 ### Technology stack ###
 
