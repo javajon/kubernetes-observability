@@ -8,20 +8,20 @@
 
 # Start minikube and ensure security for our demonstration container registry is off
 # You may want to adjust the cpu and memory resources to work with your target machine
-minikube start --kubernetes-version v1.8.0 --cpus 4 --memory 8192 --insecure-registry '192.168.99.0/24'
+minikube start --kubernetes-version v1.8.0 --cpus 4 --memory 8000 --insecure-registry '192.168.99.0/24'
 
 # See https://github.com/kubernetes/minikube/tree/master/deploy/addons
 minikube addons enable registry
 minikube addons enable heapster
-
-# After registry is added, map it to port 5000 so all images can be pulled from localhost:5000
-kubectl apply -f https://github.com/Faithlife/minikube-registry-proxy/raw/master/kube-registry-proxy.yml
 
 # May be a few moments before service is ready to respond to a patch request
 # Expose the Registry externally as a NodePort (use 'minikube service list' to find the URL of services)
 for i in {1..10}; do \
 kubectl patch service registry --namespace=kube-system --type='json' -p='[{"op": "replace",  "path": "/spec/type", "value":"NodePort"}]' \
 && break || echo 'OK, retrying NodePort adjustment for registry...' && sleep 10; done
+
+# After registry is added, map it to port 5000 so all images can be pulled from localhost:5000
+kubectl apply -f https://github.com/Faithlife/minikube-registry-proxy/raw/master/kube-registry-proxy.yml
 
 minikube status
 echo "$(minikube version) is now ready"

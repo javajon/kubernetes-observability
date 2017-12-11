@@ -28,7 +28,7 @@ For tracing in Kubernetes it's possible to use:
 - JOP stack (Jaeger, OpenTracing, Prometheus) (http://www.hawkular.org/blog/2017/06/26/opentracing-appmetrics.html)
 
 
-### What will these following instructions do? ###
+## What will these following instructions do? ##
 
 - Start a personal Kubernetes cluster
 - Add a private Docker registry with a UI to Kubernetes 
@@ -40,7 +40,7 @@ For tracing in Kubernetes it's possible to use:
 - Roadmap: Tracing demonstration
 
 
-### How do I get set up? ###
+## How do I get set up? ##
 
 - Clone this project from GitHub
 - Install [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) (or any other Kubernetes solution)
@@ -49,23 +49,31 @@ For tracing in Kubernetes it's possible to use:
 - From project root run `./start.sh`. This will provision a personal Kubernetes cluster for you.
 
 
-### Enhanced UI for the private Docker Registry ###
+## Enhanced UI for the private Docker Registry ##
 
+There is a Minikube addon called "registry" that has been enabled. It is a private Docker registry,
+but it lacks a user interface. There is a container that will front this registry with a helpful UI.
 From the project root run 
 
-`kubectl create -f cluster/registry-ui`
+`
+kubectl create -f cluster/registry-ui
+`
 
 In a few minutes a service will give you access to a browser based UI. Here you can verify the three microservices 
 images have been deployed to the cluster's private Docker registry. To see the UI run
 
-`minikube service -n kube-system registry-ui`
+`
+minikube service -n kube-system registry-ui
+`
 
+-----------------
+## Prometheus ###
+### Installing Prometheus Operator ###
 
-### Installing Prometheus ###
-
-The Github project [coreos/prometheus-operator](https://github.com/coreos/prometheus-operator) provides a well
-configured Grafana dashboards and Prometheus settings for many Kubernetes clusters. It also has documented installation
-procedures that can provision you cluster, even a small one on Minikube with an effective monitoring solution.
+The Github project [coreos/prometheus-operator](https://github.com/coreos/prometheus-operator) 
+provides a well configured Grafana dashboards and Prometheus settings for many Kubernetes 
+clusters. It also has documented installation procedures that can provision you cluster, even 
+a small one on Minikube with an effective monitoring solution.
 
 From the readme in that project these shortened steps can be followed.
 
@@ -81,51 +89,79 @@ Get the Prometheus operator
 
 Deploy the Prometheus operator
 
-`kubectl create namespace monitoring`
+`
+kubectl create namespace monitoring
+`
 
-`kubectl apply -n monitoring -f bundle.yaml`
+`
+kubectl apply -n monitoring -f bundle.yaml
+`
 
-Install Prometheus
+### Install Prometheus ###
 
 `cd contrib/kube-prometheus`
 
 `hack/cluster-monitoring/minikube-deploy`
 
+Observe all the resources that get created. 
 
-### Deploy some microservices that will be monitored ###
+--------------------
+## Microservices ##
 
-There are three SpringBoot microservices that communicate with each other: Quotes, Authors and Biographies. 
-The above start.sh script enables the Minikube addon called "registry". This is a private Docker registry running
-as a container in your cluster. Build and deploy the 3 microservices and their Docker images will be pushed to
+### Deploy some microservices to be monitored ###
+
+There are three SpringBoot microservices that communicate with each other: 
+Quotes, Authors and Biographies. The above start.sh script enables the Minikube addon 
+called "registry". This is a private Docker registry running as a container in your 
+cluster. Build and deploy the 3 microservices and their Docker images will be pushed to
 this registry. In the project root there is a script 
 
 `./pushImages.sh` 
 
-the will run the gradle task `pushImages` on each microservice project. Once the images are pushed you can verify 
-they are now in the registry with the command:
+that will run the Gradle task `pushImages` on each microservice project. You can explore
+the docker.gradle file for each service to see how the plugin builds, tags and pushes the
+Docker images. Once the images are pushed you can verify they are now in the registry 
+with the command:
 
-`curl -X GET $(minikube service -n kube-system registry --url)/v2/_catalog`
+`
+curl -X GET $(minikube service -n kube-system registry --url)/v2/_catalog
+`
 
 This curl request will return: {"repositories":["authors","biographies","quotes"]}
+
+You can also see the 3 microservice Docker images in the registry UI:
+
+'
+minikube service -n kube-system registry-ui
+'
 
 
 ### Start the microservices ###
 
-Only the microservices images have been deployed to the private registry, the services now need to be started.
+Only the microservices images have been deployed to the private registry, the services now 
+need to be started. Create a namespace where the microservice containers will run.
 
-Create a namespace where the microservice containers will run.
+`
+kubectl create namespace quotes
+`
 
-`kubectl create namespace quotes`
+Now, into that namespace, deploy the 3 microservice containers
 
-Now, into that namespace, deploy the microservice containers
-
-`kubectl apply -f cluster/microservices`
+`
+kubectl apply -f cluster/microservices
+`
 
 
 ### What do these microservices do? ###
 
 This project contains three microservices based on Java SpringBoot. They provide JSON based REST APIs and 
 coordinate to return random famous quotes, biographies and authors from the respective services. 
+
+You can now see those 3 services are not exposed via a NodePort:
+
+'minikube service list -n quotes`  
+
+While the services are instantly ready, it will take a minute before the pods are ready.           
 
 `curl $(minikube service -n quotes authors     --url)/author/random`
 `curl $(minikube service -n quotes biographies --url)/bio/random`
@@ -139,27 +175,57 @@ quote from their notable curation.
 This is a invokes the 3 microservices in a chained transaction. Each REST request will produce a random quote 
 from a random author.
 
+You can also observe the metrics for each service at the relative REST location "/metrics".
+
+`
+curl $(minikube service -n quotes quotes --url)/metrics
+`
 
 ### Intracting with Prometheus ###
 
 It will take a few minutes for the containers to download and start. You can
-observe them starting in dashboard with 
+observe them starting in dashboard in the monitoring namespace with 
 
-`minikube dashboard`. 
+`
+kubectl -n monitoring get deployment,svc,pod,StatefulSet
+`
+or
+
+`minikube dashboard`
 
 Once running you can access the three UI dashboard with these commands:
 
-`minikube service -n monitoring prometheus-k8s`
+`
+minikube service -n monitoring prometheus-k8s
+`
 
-`minikube service -n monitoring alertmanager-main`
+`
+minikube service -n monitoring alertmanager-main
+`
 
-`minikube service -n monitoring grafana`
+`
+minikube service -n monitoring grafana
+`
 
-`for i in {1..10}; do curl $(minikube service -n quotes quotes --url)/quote/full; done`
+Activity in the namespace 'quotes' can be observed in these interfaces as the services are 
+excercized. Pod replications can be increased and the services can be requested to generate metrics. 
 
+`
+while true; do curl -w " ms: %{time_total}\n\n" $(minikube service -n quotes quotes --url)/quote/full; done
+`
 
-### Observe the tracing ###
-kubectl run stackdriver-zipkin --image=gcr.io/stackdriver-trace-docker/zipkin-collector:v0.3.0 --expose --port=9411 --namespace monitoring
+The class MetricStatics defines the exported metrics such as counters for "http_requests_total". These 
+changing metrics can be observed in Prometheus as the services are requested. 
+
+Next, increase the scale value for each microservice pod to 3 in the Kubernetes dashboard. Grafana will show the
+scaling of the pods. Run the above command line and determine if there are faster response times.
+
+Error metrics can be observed with 
+  
+`
+curl $(minikube service -n quotes quotes --url)/forceError
+`
+
 
 
 ### Technology stack ###
@@ -171,7 +237,7 @@ kubectl run stackdriver-zipkin --image=gcr.io/stackdriver-trace-docker/zipkin-co
 * Prometheus
 * Alert Manager
 * Grafana
-* (roadmap: fluentd, ElasticSearch, Kabana)
+* (roadmap: sleuth, fluentd, ElasticSearch, Kabana)
 * (roadmap: ZipKin)
 
 
