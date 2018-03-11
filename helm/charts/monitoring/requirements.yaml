@@ -1,0 +1,8 @@
+dependencies:
+  - name: prometheus-operator
+    version: ">=0.0.14"
+    condition: prometheus-operator.enabled
+    repository: https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
+  - name: kube-prometheus
+    version: "=>0.0.27"
+    repository: https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/

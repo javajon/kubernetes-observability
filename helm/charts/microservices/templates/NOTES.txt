@@ -1,0 +1,2 @@
+To discover the services and access URLs enter:
+minikube service list

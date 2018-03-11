@@ -1,4 +1,4 @@
-# Ensure only the absolutly necessary files are in source control.
+# Ensure only the absolutely necessary files are in source control.
 
 # Ignore Gradle output
 .gradle/*
@@ -20,5 +20,5 @@ native/
 wrapper/
 daemon/
 
-#Ignore MAC system files
+# Ignore MAC system files
 .DS_Store

@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: quotes
+  labels:
+    app: quotes
+    prometheus: kube-prometheus
+spec:
+  jobLabel: app
+  endpoints:
+  - port: http
+    interval: 5s
+  selector:
+    matchLabels:
+      release: ms
+  namespaceSelector:
+    any: true

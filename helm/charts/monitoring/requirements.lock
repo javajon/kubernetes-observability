@@ -1,0 +1,9 @@
+dependencies:
+- name: prometheus-operator
+  repository: https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
+  version: 0.0.14
+- name: kube-prometheus
+  repository: https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
+  version: 0.0.27
+digest: sha256:8045597f7f006f7b3172ac3adc9abd0bc47cf3c9aff5992a3c17f6984daf5d72
+generated: 2018-03-10T10:23:39.2020847-05:00
