@@ -11,7 +11,7 @@ health of your applications running in a cluster.
 
 Three important types of monitoring are metric data events, log streams and
 tracing. Over time there are services that gather, store and export the metrics
-and logs. There are Time Series Databases (TSDs) that append each temporal piece
+and logs. There are Time Series Databases (TSDBs) that append each temporal piece
 of data. There are monitors that evaluate alerting rules against key changes in
 data. Lastly, there are dashboards and reports offering views into states based
 on the metrics and logs gathered during a time range. Ultimately, to provide
@@ -78,6 +78,15 @@ helm-init-rbac.sh
 This will enable Tiller and give permissions to add the registry UI and
 monitoring tool stack in the next steps.
 
+At this point many pods are start and it will take a few minutes before the
+deployment is fully healthy. You can watch the progress in the kube-system
+namespace in the dashboard.
+```
+kubectl get pods -n kube-system
+or
+minikube dashboard
+```
+
 --------------------
 ## Container Registry ##
 ### Enhanced UI for private Docker Registry ###
@@ -118,7 +127,7 @@ it maps registry-ui to the service.
 ## Microservices ##
 ### Deploy some microservices to be monitored ###
 
-There are three SpringBoot microservices that communicate with each other:
+There are three Spring Boot microservices that communicate with each other:
 Quotes, Authors and Biographies. The above start.sh script enables the Minikube
 addon called "registry". This is a private Docker registry running as a
 container in your cluster. A simple script will build and deploy the 3
@@ -185,7 +194,7 @@ minikube dashboard
 
 ### Start the microservices ###
 
-Only the microservices images have been deployed to your private registry, the
+Only the microservice images have been deployed to your private registry, the
 services now need to be started. Create a namespace where the microservice
 containers will run.
 
@@ -203,7 +212,7 @@ helm install charts/microservices --namespace quotes --name ms
 
 ### What do these microservices do? ###
 
-This project contains three microservices based on Java SpringBoot. They provide
+This project contains three microservices based on Java Spring Boot. They provide
 JSON based REST APIs and coordinate to return random famous quotes, biographies
 and authors from the respective services.
 
@@ -286,13 +295,13 @@ The JVM metrics appear because of the line:  `DefaultExports.initialize();`
 Prometheus scrapes all these metrics with the relative `/metrics` call. If the
 service has an exposed URL for metrics then it appears in the Prometheus
 "Targets" listing. The URL definition is defined in the spring-beans-config.xml
-SpringBoot file for each microservice project.
+Spring Boot file for each microservice project.
 
 In conclusion, reflect on what you have just done. You stood up a personal
 cluster with a private Docker registry. You deployed and started three
 microservices wrapped in Docker containers. Next, you stood up a monitoring
 system and observed how the behaviors of the microservices are tracked in
-the Prometheus metrics.  With this hopefully you can see how Helm charts are
+the Prometheus metrics. With this hopefully you can see how Helm charts are
 a declarative way to add technology stacks to Kubernetes.
 
 ## Technology stack ##
@@ -304,14 +313,14 @@ a declarative way to add technology stacks to Kubernetes.
 * Prometheus Operator 0.0.14
 * Kube-Prometheus 0.0.27  (Alertmanager + Grafana)
 * Java 1.8
-* SpringBoot
+* Spring Boot
 * Gradle and a few helpful plugins for building and deploying containers
 
 ## Project roadmap ##
 
 * Add YAML for Alertmanager rules.
 * Logging: fluentd, ElasticSearch, Kabana via the EFK addon in Minikube
-* Move to SpringBoot 2.0, SLF4J with Log4j and configure logging for fluentd
+* Move to Spring Boot 2.0, SLF4J with Log4j and configure logging for fluentd
 * ZipKin or some comparable tracing stack
 
 There is also a directory helm/monitoring and the chart is not currently
@@ -330,6 +339,6 @@ An error will appear about the unknown API version.
 
 * Visit the [No Fluff Just Stuff tour](https://www.nofluffjuststuff.com/home/main) and see this example in action. [Monitoring Clusters and Containers](https://archconf.com/conference/clearwater/2017/12/session?id=40272)
 * [Installing the Prometheus Operator, a CoreOS open source contribution](https://github.com/coreos/prometheus-operator)
-* [SpringBoot correlationIds](https://blog.jdriven.com/2017/04/correlate-services-logging-spring-boot)
+* [Spring Boot correlationIds](https://blog.jdriven.com/2017/04/correlate-services-logging-spring-boot)
 * This solution was inspired from the opinionated [Prometheus installation provided by CoreOS Tectonic.](https://coreos.com/tectonic/docs/latest/tectonic-prometheus-operator/tectonic-monitoring.html)
 * [Chris Ricci, Solutions Engineer, CoreOS/Red Hat](https://www.linkedin.com/in/christopher-ricci) provides a [helpful demonstration of Prometheus](https://www.brighttalk.com/webcast/14601/293915)
