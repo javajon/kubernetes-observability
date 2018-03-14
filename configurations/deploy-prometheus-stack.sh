@@ -5,10 +5,8 @@ kubectl create namespace monitoring
 
 helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
 
-helm install coreos/prometheus-operator --name prometheus-operator --namespace monitoring -set rbacEnable=false
-helm install coreos/kube-prometheus --name kube-prometheus --namespace monitoring
-
-sleep 20
+helm install coreos/prometheus-operator --wait --name prometheus-operator --namespace monitoring --set rbacEnable=false
+helm install coreos/kube-prometheus     --wait --name kube-prometheus     --namespace monitoring
 
 kubectl patch service kube-prometheus-prometheus   --namespace=monitoring --type='json' -p='[{"op": "replace",  "path": "/spec/type", "value":"NodePort"}]'
 kubectl patch service kube-prometheus-alertmanager --namespace=monitoring --type='json' -p='[{"op": "replace",  "path": "/spec/type", "value":"NodePort"}]'

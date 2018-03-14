@@ -2,7 +2,12 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-prometheus:
+# This umbrella chart is derived from instructions found here:
+# https://github.com/coreos/prometheus-operator/tree/master/helm
+
+prometheus-operator:
+  rbacEnable: false
+
   alertmanager:
     service:
       type: NodePort
@@ -10,7 +15,7 @@ prometheus:
     service:
       type: NodePort
 
-grafana:
+kube-prometheus:
   server:
     service:
       type: NodePort

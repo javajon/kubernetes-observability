@@ -166,24 +166,30 @@ Kubernetes clusters. It also has documented installation procedures that can
 provision your cluster, even a small one on Minikube with an effective
 monitoring solution.
 
-Also, the Helm community maintains a list of common and helpful charts. You can
-see this list with `helm search stable`. There is a chart called
-stable/prometheus.
+Before continuing be sure the Helm Tiller has been configured by running the
+script mentioned above `helm\helm-init-rbac.sh`.
 
-While these two aforementioned solutions work, this project has adopted those
-techniques, layers on a few extra configurations and provides them as a chart.
-Go to the helm directory and notice there is the monitoring chart. To add
-the monitoring stack, install this chart into the monitoring namespace:
+There are two key charts combined to offer a helpful stack. The project has
+an umbrella chart called `monitoring` comprised of two subcharts:
+prometheus-operator and kube-prometheus. To install this chart run these commands:
 
 ```
-cd configurations
-deploy-prometheus-stack.sh
-````
+kubectl create namespace monitoring
+cd helm
+helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
+helm install charts/monitoring --namespace monitoring --name mon
+```
 
-The above instructions are based from
-[here](https://github.com/coreos/prometheus-operator/tree/master/helm).
-It will take a few minutes for the containers to download and start. Observe the
-resources that get created with this monitoring stack with:
+The next command will expose the key Prometheus services as NodePorts.
+
+```
+cd ../configurations
+monitoring-nodeports.sh
+````
+Once exposed as NodePorts and the stack is running you can point your browser
+at the service endpoints. It will take a few minutes for the containers to
+download and start. Observe the resources that get created with this monitoring
+stack with:
 
 ```
 minikube service list
@@ -317,23 +323,11 @@ a declarative way to add technology stacks to Kubernetes.
 * Gradle and a few helpful plugins for building and deploying containers
 
 ## Project roadmap ##
-
 * Add YAML for Alertmanager rules.
 * Logging: fluentd, ElasticSearch, Kabana via the EFK addon in Minikube
 * Move to Spring Boot 2.0, SLF4J with Log4j and configure logging for fluentd
 * ZipKin or some comparable tracing stack
 
-There is also a directory helm/monitoring and the chart is not currently
-installing as expected. To attempt to the install and see the error follow
-these steps:
-
-```
-cd helm
-helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
-helm install charts/monitoring --namespace monitoring --name mon
-```
-
-An error will appear about the unknown API version.
 
 ### Additional information ###
 
@@ -341,4 +335,5 @@ An error will appear about the unknown API version.
 * [Installing the Prometheus Operator, a CoreOS open source contribution](https://github.com/coreos/prometheus-operator)
 * [Spring Boot correlationIds](https://blog.jdriven.com/2017/04/correlate-services-logging-spring-boot)
 * This solution was inspired from the opinionated [Prometheus installation provided by CoreOS Tectonic.](https://coreos.com/tectonic/docs/latest/tectonic-prometheus-operator/tectonic-monitoring.html)
-* [Chris Ricci, Solutions Engineer, CoreOS/Red Hat](https://www.linkedin.com/in/christopher-ricci) provides a [helpful demonstration of Prometheus](https://www.brighttalk.com/webcast/14601/293915)
+* [Chris Ricci, Solutions Engineer, CoreOS/Red Hat](https://www.linkedin.com/in/christopher-ricci) provides a [helpful demonstration of Prometheus](https://www.brighttalk.com/webcast/14601/293915). Also, a talk on the
+[advancements in version 2](https://www.brighttalk.com/webcast/14601/289815).
