@@ -132,15 +132,18 @@ Quotes, Authors and Biographies. The above start.sh script enables the Minikube
 addon called "registry". This is a private Docker registry running as a
 container in your cluster. A simple script will build and deploy the 3
 microservices and their Docker images will be pushed to this registry. In the
-project directory `microservices` there is the source for the microservices and
-a script that will build and push the Docker images. Run:
+project directory `<project>/microservices` there is the source for the
+microservices and a script that will build and push the Docker images. Run:
 
 ```
 ./pushImages.sh
 ```
 
-and it will run the Gradle task `pushImages` on each microservice project. You
-can explore the docker.gradle file for each service to see how the plugin
+and it will run the Gradle task `pushImages` on each microservice project. If
+there are exceptions when attempting to push the image to the registry make sure
+you have run the env.sh script at the command line.
+
+You can explore the docker.gradle file for each service to see how the plugin
 builds, tags and pushes the Docker images. Once the images are pushed you can
 verify they are now in the registry with the command:
 
@@ -169,27 +172,16 @@ monitoring solution.
 Before continuing be sure the Helm Tiller has been configured by running the
 script mentioned above `helm\helm-init-rbac.sh`.
 
-There are two key charts combined to offer a helpful stack. The project has
-an umbrella chart called `monitoring` comprised of two subcharts:
-prometheus-operator and kube-prometheus. To install this chart run these commands:
-
-```
-kubectl create namespace monitoring
-cd helm
-helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
-helm install charts/monitoring --namespace monitoring --name mon
-```
-
-The next command will expose the key Prometheus services as NodePorts.
+There are two key charts combined to offer a helpful monitoring stack.
+prometheus-operator and kube-prometheus. To install these charts run this script:
 
 ```
 cd ../configurations
-monitoring-nodeports.sh
+deploy-prometheus-stack.sh
 ````
-Once exposed as NodePorts and the stack is running you can point your browser
-at the service endpoints. It will take a few minutes for the containers to
-download and start. Observe the resources that get created with this monitoring
-stack with:
+You will see a list of exposed http endpoints for Prometheus, Alertmanager and
+Grafana. It will take a few minutes for the containers to download and start.
+Observe the resources that get created with this monitoring stack with:
 
 ```
 minikube service list
@@ -202,19 +194,20 @@ minikube dashboard
 
 Only the microservice images have been deployed to your private registry, the
 services now need to be started. Create a namespace where the microservice
-containers will run.
+containers will run then start the 3 microservice containers by changing to the
+helm directory and running this install:
 
 ```
+cd helm
 kubectl create namespace quotes
-```
-
-Now, into that namespace, instruct Kubernetes to start the 3 microservice
-containers by changing to the helm directory and running this install:
-
-```
 helm install charts/microservices --namespace quotes --name ms
 ```
 
+Next, tell Prometheus there is a new target for metrics to scrape
+```
+cd configurations
+kubectl create -n monitoring -f prometheus-targets.yaml
+```
 
 ### What do these microservices do? ###
 
@@ -240,7 +233,9 @@ curl $(minikube service -n quotes ms-quotes      --url)/quote/random
 Invoking a get /quotes/full on the ms-quotes service will return a random
 author's small biography and a random quote from their notable curation.
 
-`curl $(minikube service -n quotes ms-quotes --url)/quote/full`
+```
+curl $(minikube service -n quotes ms-quotes --url)/quote/full
+```
 
 This invokes the 3 microservices in a chained transaction. Each REST request
 will produce a random quote from a random author.
@@ -328,6 +323,15 @@ a declarative way to add technology stacks to Kubernetes.
 * Move to Spring Boot 2.0, SLF4J with Log4j and configure logging for fluentd
 * ZipKin or some comparable tracing stack
 
+Roadmap: There is an monitoring umbrella chart in this project that is intended
+to install both prometheus-operator and kube-prometheus, but it's failing in it
+current form. It normally should be invoked with:
+```
+kubectl create namespace monitoring
+cd helm
+helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
+helm install charts/monitoring --namespace monitoring --name mon
+```
 
 ### Additional information ###
 
