@@ -1,9 +1,8 @@
 #!/bin/sh
 set -ex
 
-# Roadmap: Ideally the incubating helm/charts/monitoring umbrealla chart may
-# really be the solution, but its not working yet.
-kubectl create namespace monitoring
+# Roadmap: Ideally the incubating helm/charts/monitoring umbrella chart may
+# be a better solution, but it's not working yet.
 
 helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
 
