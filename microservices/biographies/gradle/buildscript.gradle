@@ -1,12 +1,10 @@
 repositories {
-    jcenter()
-
-    maven {
-        url 'https://plugins.gradle.org/m2/'
-    }
+    maven { url 'https://plugins.gradle.org/m2/'}
 }
 
 dependencies {
+    classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.1.RELEASE'
     classpath 'io.fabric8:kubernetes-client:3.1.10'
     classpath 'com.bmuschko:gradle-docker-plugin:3.2.5'
+    classpath 'io.spring.gradle:dependency-management-plugin:1.0.5.RELEASE'
 }

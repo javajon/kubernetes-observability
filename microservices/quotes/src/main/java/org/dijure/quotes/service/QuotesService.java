@@ -25,7 +25,7 @@ public class QuotesService
     /**
      * The quotes associated with an author name.
      */
-    private Map<String, List<String>> quotes = new HashMap<>(20);
+    private final Map<String, List<String>> quotes = new HashMap<>(20);
 
     QuotesService() throws IOException
     {

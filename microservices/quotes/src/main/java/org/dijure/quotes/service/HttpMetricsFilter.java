@@ -11,9 +11,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * A filter for collecting basic statistics at HTTP request/response level.
- * This filter uses a Prometheus client. It will automatically set up a default exporter which
- * collects a number of JVM metrics as well.
+ * A filter for collecting basic statistics at HTTP request/response level. This filter uses
+ * a Prometheus client. It will automatically set up a default exporter which collects a
+ * number of JVM metrics as well.
  * <p>
  * This does not set up a metrics endpoint to be used by Prometheus to get the metrics, it just
  * sets up the collecting of the metrics.

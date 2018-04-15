@@ -1,0 +1,29 @@
+// Inspired from several examples in Gradle community, such as this one:
+// https://www.stubbornjava.com/posts/multi-project-builds-with-gradle-and-fat-jars-with-shadow
+// Lists should be alphabetical
+
+ext.versions = [
+
+    // Dependencies just related to the container rest service (not part of pfs-war)
+    springboot               : '2.0.1.RELEASE',
+
+    prometheus               : '0.3.0',
+    sleuth                   : '1.3.3.RELEASE',
+    zipkin                   : '1.3.3.RELEASE',
+    jackson                  : '2.9.5',
+]
+
+ext.libs = [
+
+    springBootWeb        : "org.springframework.boot:spring-boot-starter-web:${versions.springboot}",
+    springBootUndertow   : "org.springframework.boot:spring-boot-starter-undertow:${versions.springboot}",
+
+    springSleuth         : "org.springframework.cloud:spring-cloud-starter-sleuth:${versions.sleuth}",
+    springZipkin         : "org.springframework.cloud:spring-cloud-starter-zipkin:${versions.zipkin}",
+
+    prometheusServlet    : "io.prometheus:simpleclient_servlet:${versions.prometheus}",
+    prometheusHotspot    : "io.prometheus:simpleclient_hotspot:${versions.prometheus}",
+
+    jacksonDatabind      : "com.fasterxml.jackson.core:jackson-databind:${versions.jackson}",
+    jacksonYaml          : "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${versions.jackson}",
+]

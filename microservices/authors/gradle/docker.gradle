@@ -23,7 +23,7 @@ String getPrivateRegistryNodePort() {
             def services = new DefaultKubernetesClient().services()
             return services.inNamespace("kube-system").withName("registry").get().getSpec().ports.get(0).nodePort
         } catch (KubernetesClientException ex) {
-            println "Warning: Kubernetes is not available."
+            println 'Warning: Kubernetes is not available.'
         }
     }
 
@@ -33,8 +33,8 @@ String getPrivateRegistryNodePort() {
 }
 
 docker {
-    url = "http://" + getDockerEngineHost() + ":$dockerHostPort"
-    println "Docker and Kubernetes at " + url
+    url = 'http://' + getDockerEngineHost() + ":$dockerHostPort"
+    println 'Docker and Kubernetes at ' + url
 
     // If DOCKER_X values not set apply this: eval $(minikube docker-env)
     def certPathText = project.properties.getOrDefault('certPath', System.env.DOCKER_CERT_PATH)
@@ -45,7 +45,7 @@ docker {
 
 task copyContainerArtifacts(type: Copy, group: 'docker') {
     description 'Move the jar into the container.'
-    dependsOn bootRepackage
+    dependsOn bootJar
     from new File("${buildDir}/libs", jar.getArchiveName())
     into 'build/docker'
 }

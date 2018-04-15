@@ -1,0 +1,30 @@
+apply plugin: 'java-library'
+
+tasks.withType(JavaCompile) {
+    options.incremental = true // one flag, and compilation gets MUCH faster
+
+    // Potential Annotation processors can disrupt incremental builds,
+    options.compilerArgs.add '-proc:none'
+    doFirst {
+        effectiveAnnotationProcessorPath.each { maybeJar ->
+            if (maybeJar.file) {
+                zipTree(maybeJar).each {
+                    if (it.name == 'javax.annotation.processing.Processor') {
+                        println "Annotation processor found in $maybeJar.name"
+                    }
+                }
+            }
+        }
+    }
+}
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+clean.doFirst {
+    delete "${rootDir}/build"
+}
