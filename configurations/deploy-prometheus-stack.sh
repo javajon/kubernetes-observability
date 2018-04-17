@@ -4,6 +4,8 @@ set -ex
 # Roadmap: Ideally the incubating helm/charts/monitoring umbrella chart may
 # be a better solution, but it's not working yet.
 
+# These steps follow the readme here: https://github.com/coreos/prometheus-operator/tree/master/helm
+# With RBAC disabled
 helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
 
 helm install coreos/prometheus-operator --wait --name prometheus-operator --namespace monitoring --set rbacEnable=false

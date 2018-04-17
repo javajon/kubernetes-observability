@@ -48,7 +48,7 @@ The typical tool used to interact with Kubernetes is KubeCtl. However, the Helm 
 
 - Install the Kubernetes package manager [Helm](https://docs.helm.sh/using_helm/).
 
-Helm is a command line tool that also installs a small complimentary service called Tiller onto your cluster. To setup Tiller for this demonstration run the shell script from within the helm directory:
+Helm is a command line tool that also installs a small complimentary service called Tiller onto your cluster. To setup Tiller for this demonstration run the shell script from within the `helm` directory:
 
 ```
 cd helm
@@ -142,7 +142,7 @@ minikube dashboard
 
 ### Start microservices ###
 
-Now that microservice images are deployed to the private registry, the services can now start. Start the 3 microservice containers by changing to the helm directory and running this install:
+Now that microservice images are deployed to the private registry, the services can now start. Start the 3 microservice containers by changing to the `helm` directory and running this install:
 
 ```
 cd helm
@@ -230,7 +230,7 @@ The JVM metrics are present because of the line: `DefaultExports.initialize();`
 Prometheus scrapes all these metrics with the relative `/metrics` call. If the service exposes a URL for metrics, then it listed in the Prometheus "Targets" catalog. The URL definition is defined in the spring-beans-config.xml Spring Boot file for each microservice project.
 
 -------------
-## Colophon ##
+## Sub finem ##
 Reflect on what you have just explored. You stood up a personal cluster with a private Docker registry. You deployed and started three microservices wrapped in Docker containers. Next, you stood up a monitoring system and observed how the behaviors of the microservices are tracked with Prometheus metrics. Along the way you have seen examples of Spring Boot, Gradle, Helm and the helpful features Kubernetes.
 
 My hope is this gives you a deeper appreciation of Kubernetes as a powerful software architecture movement.  -- Jonathan Johnson
@@ -259,9 +259,35 @@ helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
 helm install charts/monitoring --namespace monitoring --name mon
 ```
 
+### Presentation short instructions ###
+#### Pre-talk setup ####
+| Step                     | Command
+|--------------------------|---------
+| Fresh Minikube           | `minikube delete`
+| Initialize               | `./start.sh`
+| CLI env                  | `. ./env.sh`
+| Init Helm                | `cd helm && ./helm-init-rbac.sh`
+| Tiller startibf ~15 min. | `helm status`
+| Start Docker UI          | `helm install charts/docker-registry-web --namespace kube-system --name ui`
+| Change dir               | `cd ../configurations`
+| Start Docker UI          | `./deploy-prometheus-stack.sh`
+| Start Prometheus         | `kubectl create -n monitoring -f prometheus-targets.yaml`
+| Publish microservices    | `cd microservices && ./pushImages`
+
+#### Demonstrate ####
+
+| Step                     | Command
+|--------------------------|---------
+| Start microservices      | `cd ../helm && helm install charts/microservices --namespace quotes --name ms`
+| Extract url       | `export SERVICE=$(minikube service -n quotes ms-quotes --url) && echo $SERVICE`
+| Exercise services        | `curl -w " ms: %{time_total}\n" $SERVICE/quote/full`
+| Loop services            | `while true; do curl -w " ms: %{time_total}\n" $SERVICE/quote/full; done`
+| Loop and watch time      | `while true; do curl -w " ms: %{time_total}\n" $SERVICE/quote/full : head -c10; done`
+
+Observe in Prometheus the statistic `http_requests_total` growing.
 ### References ###
 
-* Visit the [No Fluff Just Stuff tour](https://www.nofluffjuststuff.com/home/main) and experience this example in action. [Monitoring Clusters and Containers](https://archconf.com/conference/clearwater/2017/12/session?id=40272)
+* Visit the [No Fluff Just Stuff tour](https://www.nofluffjuststuff.com/home/main) and explore many ideas like this. [Monitoring Clusters and Containers](https://archconf.com/conference/clearwater/2017/12/session?id=40272)
 * [Installing the Prometheus Operator, a CoreOS open source contribution](https://github.com/coreos/prometheus-operator)
 * [Spring Boot correlationIds](https://blog.jdriven.com/2017/04/correlate-services-logging-spring-boot)
 * Thank you [Max Kuchin](https://github.com/mkuchin) for the [Docker Registry Web container](https://github.com/mkuchin/docker-registry-web).
