@@ -38,7 +38,7 @@ For tracing in Kubernetes it's possible to use:
 
 #### Install Kubernetes, a container manager ####
 - Install [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/). Other Kubernetes solutions are available, however these steps below are specific to Minikube). Do not start Minikube, just install the command line tool and VirtualBox. Below the script will start Minikube with the correct sizing and configuration.
-- Install [KubeCtl] (https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- Install [KubeCtl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - From project root run `./start.sh`. This provisions a personal Kubernetes cluster with a few addons for you.
 - Verify `minikube status` and `kubectl version` run correctly
 
