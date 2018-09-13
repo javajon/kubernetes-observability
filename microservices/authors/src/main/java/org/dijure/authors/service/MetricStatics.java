@@ -8,7 +8,7 @@ public interface MetricStatics
     /**
      * labels that will be added to all the metrics.
      */
-    String[] METRIC_LABELS = {"method", "status"};
+    String[] METRIC_LABELS = {"method", "status", "authors"};
 
     /**
      * Name of parameter that will be added to the request to allow computation of the duration of the request.
@@ -18,12 +18,12 @@ public interface MetricStatics
     /**
      * Counter to count the number of request (R of RED).
      */
-    Counter REQUEST_COUNTER = counter("http_requests_total", "Total HTTP Request");
+    Counter REQUEST_COUNTER = counter("demo_http_requests_total", "Total HTTP Request");
 
     /**
      * Counter to count the number of request. (E of RED).
      */
-    Counter ERROR_COUNTER = counter("http_errors_total", "Total HTTP Errors");
+    Counter ERROR_COUNTER = counter("demo_http_errors_total", "Total HTTP Errors");
 
     /**
      * Summary to get the amount of time taken to fulfill request (D of RED).

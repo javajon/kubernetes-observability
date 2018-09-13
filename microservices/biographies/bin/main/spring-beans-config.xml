@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- Add the metrics filter -->
+    <bean id="metricsRegistration" class="org.springframework.boot.web.servlet.FilterRegistrationBean">
+        <property name="filter">
+            <bean id="metricsFilter" class="org.dijure.biographies.service.HttpMetricsFilter"/>
+        </property>
+    </bean>
+
+    <!-- Add servlet for the metrics endpoint -->
+    <bean id="metricsServlet" class="org.springframework.boot.web.servlet.ServletRegistrationBean">
+        <constructor-arg name="servlet">
+            <bean class="io.prometheus.client.exporter.MetricsServlet"/>
+        </constructor-arg>
+        <constructor-arg name="urlMappings" value="/metrics"/>
+    </bean>
+
+</beans>

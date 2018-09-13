@@ -1,0 +1,22 @@
+# Experimental
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: registry-ingress
+  namespace: kube-system
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /registry
+        backend:
+          serviceName: registry
+          servicePort: 80
+  - http:
+      paths:
+      - path: /registry/ui
+        backend:
+          serviceName: ui-docker-registry-web
+          servicePort: 8080

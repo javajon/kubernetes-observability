@@ -78,7 +78,7 @@ task tagImage(type: DockerTagImage, group: docker) {
     description = 'Tags an image in repository.'
     dependsOn 'buildImage'
 
-    repository = "localhost:5000/${dockerImageName}"
+    repository = "${dockerRegistry}/${dockerImageName}"
     tag = 'latest'
     targetImageId { buildImage.getImageId() }
 }
