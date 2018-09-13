@@ -26,3 +26,5 @@ The Kibana service takes a few minutes to initialize.
 ```
 minikube service kibana --namespace logging
 ```
+
+Once you get to the Kibana web interface under the Management Index Patterns change the filter from 'logstash-*' to '*'. Uncheck "Index contains time-based events" and click "Create". Next, click "Discover" and select the "kubernetes.pod_name" under "Available Fields". In the sub list of nodes, find the "random-logger-xxx" and click on the plus button. The logs from the logger will then list. Further Kibana dashboard configurations can be explored from here.
